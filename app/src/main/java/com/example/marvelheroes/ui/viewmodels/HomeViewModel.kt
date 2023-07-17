@@ -7,6 +7,7 @@ import com.example.marvelheroes.data.models.response.CharacterDetailsResponse
 import com.example.marvelheroes.data.repository.MarvelApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import javax.inject.Inject
 
 @HiltViewModel

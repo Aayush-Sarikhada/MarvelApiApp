@@ -1,8 +1,6 @@
 package com.example.marvelheroes.ui.adapters
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,37 +8,41 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.marvelheroes.R
 import com.example.marvelheroes.data.models.response.CharacterDetails
 import com.example.marvelheroes.databinding.RowCharacterBinding
+import com.example.marvelheroes.databinding.RowLoadingBinding
 import com.squareup.picasso.Picasso
 
 class UserListRVAdapter(private var userList: List<CharacterDetails>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class ItemViewHolder(binding: RowCharacterBinding) : RecyclerView.ViewHolder(binding.root) {
-
+    inner class ItemViewHolder(binding: RowCharacterBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        val imgCharacter = binding.imgCharacter
+        val tvCharacterName = binding.tvName
+        val tvCharacterDesc = binding.tvCharacterDesc
     }
 
-    class LoadingViewHolder(binding: RowCharacterBinding): RecyclerView.ViewHolder(binding.root) {
-
+    class LoadingViewHolder(binding: RowLoadingBinding) : RecyclerView.ViewHolder(binding.root) {
+        val progressCharacterLoading = binding.progressCircularUsers
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if(viewType == VIEW_TYPE_ITEM) {
+        return if (viewType == VIEW_TYPE_ITEM) {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.row_user_data, parent, false)
+                .inflate(R.layout.row_character, parent, false)
             val binding = RowCharacterBinding.bind(view)
             ItemViewHolder(binding)
         } else {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.row_loading, parent, false)
-            val binding = RowCharacterBinding.bind(view)
+            val binding = RowLoadingBinding.bind(view)
             LoadingViewHolder(binding)
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if(holder is ItemViewHolder) {
-            populateItemRows(holder,position)
-        } else if(holder is LoadingViewHolder) {
+        if (holder is ItemViewHolder) {
+            populateItemRows(holder, position)
+        } else if (holder is LoadingViewHolder) {
             showLoadingView(holder, position)
         }
     }
@@ -49,17 +51,14 @@ class UserListRVAdapter(private var userList: List<CharacterDetails>) :
         return userList.count()
     }
 
-    fun submitUserList(newList: List<UserInfo>) {
-
-        Log.d("DEBUG IN RVADAPTER", newList.toString())
+    fun submitUserList(newList: List<CharacterDetails>) {
         val oldList = userList
         userList = newList
-        Log.d("DEBUG IN RVADAPTER", userList.toString())
-        notifyItemRangeInserted(oldList.size-1,newList.size)
+        notifyItemRangeInserted(oldList.size - 1, newList.size)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if(userList[position].id == -1) {
+        return if (userList[position].isLoadingView) {
             VIEW_TYPE_LOADING
         } else {
             VIEW_TYPE_ITEM
@@ -67,16 +66,19 @@ class UserListRVAdapter(private var userList: List<CharacterDetails>) :
     }
 
     private fun showLoadingView(holder: LoadingViewHolder, position: Int) {
-        holder.progressUsers.visibility = View.VISIBLE
+        holder.progressCharacterLoading.visibility = View.VISIBLE
     }
 
     @SuppressLint("SetTextI18n")
     private fun populateItemRows(holder: ItemViewHolder, position: Int) {
-        Picasso.get().load(userList[position].profilePicture).into(holder.imgView)
-        holder.tvId.text = "ID: ${userList[position].id}"
-        holder.tvEmail.text = "Email: ${userList[position].email}"
-        holder.tvName.text = "Name: ${userList[position].name}"
-        holder.tvCreatedOn.text = "Created on: ${userList[position].createdAt}"
+        Picasso.get().load(userList[position].thumbnail.path).into(holder.imgCharacter)
+        holder.tvCharacterName.text = userList[position].name
+        holder.tvCharacterDesc.text = userList[position].description
+    }
+
+    companion object {
+        private const val VIEW_TYPE_ITEM = 0
+        private const val VIEW_TYPE_LOADING = 1
     }
 
 }
